@@ -6,57 +6,63 @@
 <title>만서각 BOOK ART ARCHIVE</title>
 <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-/* 디자인은 그대로 유지 */
+/* ── 다크 우드톤 서재 디자인 ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root { --gold: #c9a84c; --cream: #f2ede3; --wood: #1a0f08; --border: rgba(201, 168, 76, 0.3); }
 body { background: radial-gradient(circle at center, #2c1b10 0%, #1a0f08 100%); color: var(--cream); font-family: 'Noto Serif KR', serif; min-height: 100vh; }
+
 .header { position: sticky; top: 0; z-index: 100; background: rgba(26, 15, 8, 0.98); padding: 15px; border-bottom: 2px solid var(--gold); text-align: center; }
 .brand-title { font-size: 18px; font-weight: 600; color: var(--gold); margin-bottom: 10px; letter-spacing: 0.1em; cursor: pointer; }
 .search-wrap { display: flex; border: 1px solid var(--gold); width: 100%; max-width: 400px; margin: 0 auto; background: rgba(0,0,0,0.3); }
 #code-input { flex: 1; background: transparent; border: none; color: var(--cream); padding: 12px; font-size: 15px; text-transform: uppercase; outline: none; }
 .search-btn { background: var(--gold); border: none; padding: 0 20px; color: #1a0f08; font-weight: 600; cursor: pointer; }
+
 #app { padding: 20px; width: 100%; max-width: 900px; margin: 0 auto; }
-#loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--wood); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; transition: 0.5s; }
-.spinner { border: 3px solid rgba(201, 168, 76, 0.1); border-top: 3px solid var(--gold); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin-bottom: 10px; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-#list-screen, #display-screen { display: none; margin-top: 20px; }
+#error-msg { color: #ff6b6b; font-size: 11px; margin-top: 5px; height: 14px; text-align: center; }
+
+/* 리스트 화면 */
+#list-screen { display: none; margin-top: 20px; }
 .list-count { color: var(--gold); margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-.result-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 15px; margin-bottom: 10px; cursor: pointer; }
+.result-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 15px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
 .result-item:hover { background: rgba(201, 168, 76, 0.1); }
-.item-title { font-size: 18px; font-weight: 600; color: var(--cream); }
-.panel-frame { background: rgba(15, 8, 4, 0.9); border: 1px solid var(--border); padding: 40px; position: relative; }
-.title-row { text-align: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
-.ko-title { font-size: 26px; font-weight: 600; }
+.item-title { font-size: 18px; font-weight: 600; }
+
+/* 상세 화면 */
+#display-screen { display: none; width: 100%; }
+.panel-frame { background: rgba(15, 8, 4, 0.9); border: 1px solid var(--border); padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+.title-row { text-align: center; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+.ko-title { font-size: 24px; font-weight: 600; }
+
 .content-layout { display: flex; flex-direction: column; gap: 30px; }
 @media (min-width: 768px) { .content-layout { flex-direction: row; } .left-col { width: 280px; } .right-col { flex: 1; } }
-.book-cover { width: 100%; max-width: 300px; margin: 0 auto 20px; aspect-ratio: 3/4; border: 1px solid var(--gold); display: none; overflow: hidden; }
+
+#d-cover-wrap { width: 100%; max-width: 300px; margin: 0 auto 20px; aspect-ratio: 3/4; border: 1px solid var(--gold); display: none; overflow: hidden; }
 .book-cover img { width: 100%; height: 100%; object-fit: cover; }
+
 .meta-item { margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
-.meta-key { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
-.meta-val { font-size: 15px; margin-top: 2px; }
+.meta-key { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
+.meta-val { font-size: 14px; margin-top: 2px; }
+
 .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
 @media (max-width: 480px) { .info-grid { grid-template-columns: 1fr; } }
-.desc-label { font-size: 11px; color: var(--gold); margin-bottom: 10px; letter-spacing: 1px; border-left: 2px solid var(--gold); padding-left: 8px; }
-.desc-text { font-size: 14.5px; color: #c8bea8; line-height: 1.8; text-align: justify; white-space: pre-wrap; }
-.bottom-bar { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 12px; color: var(--gold); }
-.visible { display: block !important; animation: fadeIn 0.5s ease forwards; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+.desc-label { font-size: 11px; color: var(--gold); margin-bottom: 10px; border-left: 2px solid var(--gold); padding-left: 8px; }
+.desc-text { font-size: 14px; color: #c8bea8; line-height: 1.8; white-space: pre-wrap; text-align: justify; }
+
+.bottom-bar { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; color: var(--gold); }
+
+.visible { display: block !important; animation: fadeIn 0.4s ease forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
 
-<div id="loading-overlay">
-  <div class="spinner"></div>
-  <p style="color:var(--gold); font-size:12px; letter-spacing:1px;">서고를 정리하고 있습니다...</p>
-</div>
-
 <div class="header">
   <div class="brand-title" onclick="location.reload()">만서각 BOOK ART ARCHIVE</div>
   <div class="search-wrap">
-    <input id="code-input" type="text" placeholder="제목, 작가, 출판사, 코드 검색">
-    <button class="search-btn" onclick="performSearch()">SEARCH</button>
+    <input id="code-input" type="text" placeholder="제목, 작가, 코드 등 입력">
+    <button class="search-btn" onclick="searchArtwork()">SEARCH</button>
   </div>
-  <div id="error-msg" style="color:#ff6b6b; font-size:11px; margin-top:5px; height:14px;"></div>
+  <div id="error-msg"></div>
 </div>
 
 <div id="app">
@@ -75,7 +81,7 @@ body { background: radial-gradient(circle at center, #2c1b10 0%, #1a0f08 100%); 
           <div class="meta-item"><div class="meta-key">위치</div><div id="d-loc" class="meta-val"></div></div>
         </div>
         <div class="right-col">
-          <div class="info-grid" id="d-meta">
+          <div class="info-grid">
             <div class="meta-item"><div class="meta-key">작가</div><div id="d-author" class="meta-val"></div></div>
             <div class="meta-item"><div class="meta-key">발행연도</div><div id="d-year" class="meta-val"></div></div>
             <div class="meta-item"><div class="meta-key">소전권서</div><div id="d-sojun" class="meta-val"></div></div>
@@ -92,96 +98,74 @@ body { background: radial-gradient(circle at center, #2c1b10 0%, #1a0f08 100%); 
 </div>
 
 <script>
-// ★ 구글 웹 앱 URL을 여기에 넣으세요
-const GAS_URL = "복사한_구글_웹_앱_URL";
-let allArchiveData = []; // 모든 데이터를 담을 창고
+const GAS_URL = "여기에_구글_웹_앱_URL_넣기";
+let currentResults = [];
 
-// 1. 페이지 로딩 시 데이터를 미리 몽땅 가져오기
-window.onload = function() {
-  fetch(GAS_URL)
+function searchArtwork() {
+  const keyword = document.getElementById("code-input").value.trim();
+  if (!keyword) return;
+  
+  document.getElementById("error-msg").textContent = "서고 검색 중...";
+  document.getElementById("display-screen").style.display = "none";
+  document.getElementById("list-screen").style.display = "none";
+
+  fetch(`${GAS_URL}?code=${encodeURIComponent(keyword)}`)
     .then(res => res.json())
     .then(json => {
-      if (json.success) {
-        allArchiveData = json.data;
-        document.getElementById("loading-overlay").style.opacity = "0";
-        setTimeout(() => document.getElementById("loading-overlay").style.display = "none", 500);
+      document.getElementById("error-msg").textContent = "";
+      if (json.found) {
+        currentResults = json.data;
+        if (currentResults.length === 1) renderPanel(0);
+        else renderList(currentResults);
+      } else {
+        document.getElementById("error-msg").textContent = `"${keyword}" 결과가 없습니다.`;
       }
     })
-    .catch(err => {
-      document.getElementById("error-msg").textContent = "서고를 불러오지 못했습니다. 새로고침 해주세요.";
-    });
-};
-
-// 2. 검색 실행 (이제 서버에 묻지 않고 내 폰에서 즉시 찾음)
-let searchResults = [];
-function performSearch() {
-  const keyword = document.getElementById("code-input").value.trim().toUpperCase();
-  if (!keyword) return;
-
-  // 검색 로직
-  searchResults = allArchiveData.filter(item => {
-    return (
-      (item["작품 코드"] && item["작품 코드"].toString().toUpperCase().includes(keyword)) ||
-      (item["표제(국문)"] && item["표제(국문)"].toString().toUpperCase().includes(keyword)) ||
-      (item["표제(원어)"] && item["표제(원어)"].toString().toUpperCase().includes(keyword)) ||
-      (item["작가(국문)"] && item["작가(국문)"].toString().toUpperCase().includes(keyword)) ||
-      (item["출판사"] && item["출판사"].toString().toUpperCase().includes(keyword))
-    );
-  });
-
-  if (searchResults.length === 0) {
-    document.getElementById("error-msg").textContent = `"${keyword}"에 대한 결과가 없습니다.`;
-    document.getElementById("list-screen").style.display = "none";
-    document.getElementById("display-screen").style.display = "none";
-  } else if (searchResults.length === 1) {
-    document.getElementById("error-msg").textContent = "";
-    renderPanel(0);
-  } else {
-    document.getElementById("error-msg").textContent = "";
-    renderList(searchResults);
-  }
+    .catch(err => { document.getElementById("error-msg").textContent = "연결 오류"; });
 }
 
 function renderList(data) {
-  document.getElementById("display-screen").style.display = "none";
   const container = document.getElementById("list-container");
-  document.getElementById("list-count").textContent = `총 ${data.length}개의 작품이 발견되었습니다.`;
+  document.getElementById("list-count").textContent = `총 ${data.length}건이 발견되었습니다.`;
   container.innerHTML = data.map((item, idx) => `
     <div class="result-item" onclick="renderPanel(${idx})">
       <div class="item-title">${item["표제(국문)"]} ${item["표제(원어)"] ? `<small style="color:var(--gold); font-weight:normal;">(${item["표제(원어)"]})</small>` : ""}</div>
-      <div style="font-size:13px; opacity:0.8; margin-top:5px;">작가: ${item["작가(국문)"] || "-"} | 연도: ${item["발행연도"] || "-"} | 코드: ${item["작품 코드"]}</div>
+      <div style="font-size:12px; opacity:0.7; margin-top:5px;">작가: ${item["작가(국문)"] || "-"} | 연도: ${item["발행연도"] || "-"} | 코드: ${item["작품 코드"]}</div>
     </div>
   `).join("");
   document.getElementById("list-screen").style.display = "block";
 }
 
 function renderPanel(idx) {
-  const d = searchResults[idx];
+  const d = currentResults[idx];
   document.getElementById("list-screen").style.display = "none";
   const ds = document.getElementById("display-screen");
   ds.style.display = "block";
   ds.classList.add("visible");
 
+  // 제목 병기
   document.getElementById("d-main-title").textContent = d["표제(국문)"] + (d["표제(원어)"] ? ` (${d["표제(원어)"]})` : "");
   document.getElementById("d-code").textContent = d["작품 코드"];
   document.getElementById("d-loc").textContent = d["현위치"] || "-";
-  document.getElementById("d-author").textContent = d["작가(국문)"] + (d["작가(원어)"] || d["작가 (원어)"] ? ` (${d["작가(원어)"] || d["작가 (원어)"]})` : "");
+  document.getElementById("d-author").textContent = (d["작가(국문)"] || "-") + (d["작가(원어)"] || d["작가 (원어)"] ? ` (${d["작가(원어)"] || d["작가 (원어)"]})` : "");
   document.getElementById("d-year").textContent = d["발행연도"] || "-";
   document.getElementById("d-sojun").textContent = d["소전권서"] || "-";
   document.getElementById("d-publisher").textContent = d["출판사"] || "-";
-  document.getElementById("d-desc").textContent = d["도서 설명"] || "내용이 없습니다.";
+  document.getElementById("d-desc").textContent = d["도서 설명"] || "내용 없음";
   document.getElementById("d-bigo").textContent = d["비고"] ? "비고: " + d["비고"] : "";
-  document.getElementById("d-size").textContent = d["가로"] ? `${d["가로"]} x ${d["세로"]} cm (두께 ${d["두께 D"] || '0'}cm)` : "-";
+  document.getElementById("d-size").textContent = d["가로"] ? `${d["가로"]}x${d["세로"]}cm (두께 ${d["두께 D"] || '0'}cm)` : "-";
 
-  const img = document.getElementById("d-cover");
+  // 사진 엑박 방지: URL이 없으면 숨김
+  const coverWrap = document.getElementById("d-cover-wrap");
   if (d["사진"] && d["사진"].toString().startsWith("http")) {
-    img.src = d["사진"];
-    document.getElementById("d-cover-wrap").style.display = "flex";
+    document.getElementById("d-cover").src = d["사진"];
+    coverWrap.style.display = "flex";
   } else {
-    document.getElementById("d-cover-wrap").style.display = "none";
+    coverWrap.style.display = "none";
   }
 }
-document.getElementById("code-input").addEventListener("keypress", (e) => { if (e.key === "Enter") performSearch(); });
+
+document.getElementById("code-input").addEventListener("keypress", (e) => { if (e.key === "Enter") searchArtwork(); });
 </script>
 </body>
 </html>
