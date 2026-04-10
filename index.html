@@ -6,41 +6,53 @@
 <title>만서각 BOOK ART ARCHIVE</title>
 <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-/* ── 기존 디자인 유지 ── */
+/* ── 디자인 시스템 ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root { --gold: #c9a84c; --cream: #f2ede3; --wood: #1a0f08; --border: rgba(201, 168, 76, 0.3); }
-body { background: radial-gradient(circle at center, #2c1b10 0%, #1a0f08 100%); color: var(--cream); font-family: 'Noto Serif KR', serif; min-height: 100vh; word-break: keep-all; }
-.header { position: sticky; top: 0; z-index: 100; background: rgba(26, 15, 8, 0.98); padding: 15px; border-bottom: 2px solid var(--gold); text-align: center; }
+
+body { 
+  background: radial-gradient(circle at center, #2c1b10 0%, #1a0f08 100%); 
+  color: var(--cream); 
+  font-family: 'Noto Serif KR', serif; 
+  min-height: 100vh; 
+  word-break: keep-all;
+}
+
+.header { 
+  position: sticky; top: 0; z-index: 100; 
+  background: rgba(26, 15, 8, 0.98); 
+  padding: 15px; border-bottom: 2px solid var(--gold); 
+  text-align: center; 
+}
 .brand-title { font-size: 18px; font-weight: 600; color: var(--gold); margin-bottom: 10px; letter-spacing: 0.1em; cursor: pointer; }
 .search-wrap { display: flex; border: 1px solid var(--gold); width: 100%; max-width: 400px; margin: 0 auto; background: rgba(0,0,0,0.3); }
-#code-input { flex: 1; background: transparent; border: none; color: var(--cream); padding: 12px; font-size: 15px; text-transform: uppercase; outline: none; }
+#code-input { flex: 1; background: transparent; border: none; color: var(--cream); padding: 12px; font-size: 15px; outline: none; }
 .search-btn { background: var(--gold); border: none; padding: 0 20px; color: #1a0f08; font-weight: 600; cursor: pointer; }
+
 #app { padding: 20px; width: 100%; max-width: 900px; margin: 0 auto; }
-#error-msg { color: #ff6b6b; font-size: 11px; margin-top: 5px; height: 14px; text-align: center; }
+#error-msg { color: #ff6b6b; font-size: 11px; margin-top: 5px; text-align: center; }
 
 /* ── 리스트 화면 ── */
 #list-screen { display: none; margin-top: 20px; }
 .list-count { color: var(--gold); margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
 .result-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 15px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
 .result-item:hover { background: rgba(201, 168, 76, 0.1); }
-.item-title { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
 
-/* ── [핵심 수정] 멀티 이미지 갤러리 디자인 ── */
+/* ── [수정] 사진 갤러리 ── */
 .gallery-container {
   width: 100%;
   display: flex;
-  overflow-x: auto; /* 가로 스크롤 활성화 */
+  overflow-x: auto; 
   scroll-snap-type: x mandatory;
   gap: 10px;
   padding-bottom: 10px;
   margin-bottom: 20px;
 }
-/* 스크롤바 디자인 (세련되게) */
 .gallery-container::-webkit-scrollbar { height: 4px; }
 .gallery-container::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
 .gallery-item {
-  flex: 0 0 100%; /* 한 화면에 하나씩 가득 차게 */
+  flex: 0 0 100%; 
   scroll-snap-align: start;
   aspect-ratio: 3/4;
   border: 1px solid var(--gold);
@@ -48,12 +60,16 @@ body { background: radial-gradient(circle at center, #2c1b10 0%, #1a0f08 100%); 
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000;
+  background: #000; /* 사진이 작을 때 배경을 검게 처리 */
 }
-@media (min-width: 768px) {
-  .gallery-item { flex: 0 0 280px; } /* PC에서는 적당한 크기로 */
+@media (min-width: 768px) { .gallery-item { flex: 0 0 300px; } }
+
+/* ★ 핵심 수정: contain으로 설정하여 잘림 방지 ★ */
+.gallery-item img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: contain; /* 사진 전체가 보이도록 조정 */
 }
-.gallery-item img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ── 상세 화면 ── */
 #display-screen { display: none; width: 100%; }
@@ -62,15 +78,18 @@ body { background: radial-gradient(circle at center, #2c1b10 0%, #1a0f08 100%); 
 .main-title { font-size: 24px; font-weight: 600; line-height: 1.4; color: var(--cream); }
 
 .content-layout { display: flex; flex-direction: column; gap: 30px; }
-@media (min-width: 768px) { .content-layout { flex-direction: row; } .left-col { width: 300px; flex-shrink: 0; } .right-col { flex: 1; } }
+@media (min-width: 768px) { .content-layout { flex-direction: row; } .left-col { width: 320px; flex-shrink: 0; } .right-col { flex: 1; } }
 
 .meta-item { display: flex; align-items: flex-start; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
 .meta-key { width: 95px; flex-shrink: 0; font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
 .meta-val { font-size: 15px; color: var(--cream); flex: 1; line-height: 1.4; }
+
 .info-grid { display: grid; grid-template-columns: 1fr; gap: 0 20px; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
 @media (min-width: 600px) { .info-grid { grid-template-columns: 1fr 1fr; } }
+
 .desc-label { font-size: 11px; color: var(--gold); margin-bottom: 10px; border-left: 2px solid var(--gold); padding-left: 8px; }
 .desc-text { font-size: 14.5px; color: #c8bea8; line-height: 1.8; white-space: pre-wrap; text-align: justify; }
+
 .bottom-bar { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 12px; color: var(--gold); }
 
 .active-view { display: block; animation: fadeIn 0.4s ease forwards; }
@@ -93,7 +112,6 @@ body { background: radial-gradient(circle at center, #2c1b10 0%, #1a0f08 100%); 
     <div class="list-count" id="list-count"></div>
     <div id="list-container"></div>
   </div>
-
   <div id="display-screen">
     <div id="detail-content"></div> 
   </div>
@@ -106,7 +124,6 @@ let currentResults = [];
 function searchArtwork() {
   const keyword = document.getElementById("code-input").value.trim();
   if (!keyword) return;
-  
   document.getElementById("list-screen").style.display = "none";
   document.getElementById("display-screen").style.display = "none";
   document.getElementById("detail-content").innerHTML = ""; 
@@ -148,7 +165,6 @@ function renderPanel(idx) {
 
   document.getElementById("list-screen").style.display = "none";
 
-  // 사진 데이터 처리 (쉼표로 구분하여 배열로 만들기)
   const photos = d["사진"] ? d["사진"].toString().split(",").map(url => url.trim()) : [];
   const photoHTML = photos.length > 0 ? `
     <div class="gallery-container">
@@ -161,7 +177,8 @@ function renderPanel(idx) {
       <div class="title-row"><div class="main-title">${d["표제(국문)"]} ${d["표제(원어)"] ? `(${d["표제(원어)"]})` : ""}</div></div>
       <div class="content-layout">
         <div class="left-col">
-          ${photoHTML} <div class="meta-item"><div class="meta-key">작품 코드</div><div class="meta-val" style="color:var(--gold); font-weight:600;">${d["작품 코드"]}</div></div>
+          ${photoHTML}
+          <div class="meta-item"><div class="meta-key">작품 코드</div><div class="meta-val" style="color:var(--gold); font-weight:600;">${d["작품 코드"]}</div></div>
           <div class="meta-item"><div class="meta-key">위치</div><div class="meta-val">${d["현위치"] || "-"}</div></div>
         </div>
         <div class="right-col">
