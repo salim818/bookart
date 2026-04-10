@@ -32,12 +32,12 @@ body {
 #app { padding: 20px; width: 100%; max-width: 900px; margin: 0 auto; }
 #error-msg { color: #ff6b6b; font-size: 11px; margin-top: 5px; text-align: center; }
 
-/* ── [수정] 리스트 화면 섬네일 스타일 ── */
+/* ── 리스트 화면 ── */
 #list-screen { display: none; margin-top: 20px; }
 .list-count { color: var(--gold); margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
 
 .result-item { 
-  display: flex; /* 가로 정렬 */
+  display: flex; 
   gap: 15px;
   align-items: center;
   background: rgba(255,255,255,0.03); 
@@ -49,23 +49,19 @@ body {
 }
 .result-item:hover { background: rgba(201, 168, 76, 0.1); }
 
-/* 목록용 섬네일 박스 */
+/* 목록용 섬네일 (사진 없으면 자동 숨김) */
 .list-thumb {
   width: 70px;
   height: 70px;
   flex-shrink: 0;
   background: rgba(0,0,0,0.5);
   border: 1px solid var(--border);
-  display: flex;
+  display: none; /* 기본적으로 숨김 */
   align-items: center;
   justify-content: center;
   overflow: hidden;
 }
-.list-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* 정사각형 안에서 안 잘리게 */
-}
+.list-thumb img { width: 100%; height: 100%; object-fit: contain; }
 
 .item-info { flex: 1; }
 .item-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; line-height: 1.3; }
@@ -74,7 +70,7 @@ body {
 /* ── 상세 화면 갤러리 ── */
 .gallery-container {
   width: 100%;
-  display: flex;
+  display: none; /* 기본적으로 숨김 */
   overflow-x: auto; 
   scroll-snap-type: x mandatory;
   gap: 10px;
@@ -177,11 +173,15 @@ function renderList(data) {
   document.getElementById("list-count").textContent = `총 ${data.length}건이 발견되었습니다.`;
   
   container.innerHTML = data.map((item, idx) => {
-    // 첫 번째 사진 주소 추출
-    const firstPhoto = item["사진"] ? item["사진"].toString().split(",")[0].trim() : "";
-    const thumbHTML = firstPhoto.startsWith("http") 
-      ? `<div class="list-thumb"><img src="${firstPhoto}"></div>` 
-      : ""; // 사진 없으면 영역 비움
+    const photos = item["사진"] ? item["사진"].toString().split(",") : [];
+    const firstPhoto = photos.length > 0 ? photos[0].trim() : "";
+
+    // ★ 엑박 방지: 이미지가 성공적으로 로드될 때만 부모(list-thumb)를 보여줌
+    const thumbHTML = (firstPhoto && firstPhoto.startsWith("http"))
+      ? `<div class="list-thumb" id="thumb-box-${idx}">
+           <img src="${firstPhoto}" onload="document.getElementById('thumb-box-${idx}').style.display='flex'">
+         </div>`
+      : "";
 
     return `
       <div class="result-item" onclick="renderPanel(${idx})">
@@ -206,10 +206,15 @@ function renderPanel(idx) {
   const content = document.getElementById("detail-content");
   document.getElementById("list-screen").style.display = "none";
 
-  const photos = d["사진"] ? d["사진"].toString().split(",").map(url => url.trim()) : [];
+  const photos = d["사진"] ? d["사진"].toString().split(",").map(url => url.trim()).filter(url => url.startsWith("http")) : [];
+  
+  // ★ 엑박 방지: 갤러리도 이미지가 1개라도 로드 성공해야 보여줌
   const photoHTML = photos.length > 0 ? `
-    <div class="gallery-container">
-      ${photos.map(url => url.startsWith("http") ? `<div class="gallery-item"><img src="${url}"></div>` : "").join("")}
+    <div class="gallery-container" id="main-gallery">
+      ${photos.map((url, pIdx) => `
+        <div class="gallery-item">
+          <img src="${url}" onload="document.getElementById('main-gallery').style.display='flex'">
+        </div>`).join("")}
     </div>
   ` : "";
 
