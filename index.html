@@ -170,4 +170,75 @@ function searchArtwork() {
     .then(json => {
       document.getElementById("error-msg").textContent = "";
       if (json.found) {
-        currentResults = json.
+        currentResults = json.data;
+        if (currentResults.length === 1) renderPanel(0);
+        else renderList(currentResults);
+      } else {
+        document.getElementById("error-msg").textContent = `"${keyword}" 결과가 없습니다.`;
+      }
+    })
+    .catch(err => { 
+      document.getElementById("error-msg").textContent = "연결 오류가 발생했습니다."; 
+    });
+}
+
+function renderList(data) {
+  const ls = document.getElementById("list-screen");
+  const container = document.getElementById("list-container");
+  
+  document.getElementById("list-count").textContent = `총 ${data.length}건이 발견되었습니다.`;
+  container.innerHTML = data.map((item, idx) => `
+    <div class="result-item" onclick="renderPanel(${idx})">
+      <div class="item-title">${item["표제(국문)"]} ${item["표제(원어)"] ? `<small style="color:var(--gold); font-weight:normal;">(${item["표제(원어)"]})</small>` : ""}</div>
+      <div class="item-sub">작가: ${item["작가(국문)"] || "-"} | 연도: ${item["발행연도"] || "-"} | 코드: ${item["작품 코드"]}</div>
+    </div>
+  `).join("");
+  
+  ls.style.display = "block";
+  ls.classList.add("visible");
+  window.scrollTo(0, 0);
+}
+
+function renderPanel(idx) {
+  const d = currentResults[idx];
+  
+  // 상세 화면 띄우기 전 리스트 숨기기
+  const ls = document.getElementById("list-screen");
+  ls.classList.remove("visible");
+  ls.style.display = "none";
+  
+  const ds = document.getElementById("display-screen");
+  ds.style.display = "block";
+  ds.classList.add("visible");
+
+  // 데이터 매핑
+  document.getElementById("d-main-title").textContent = d["표제(국문)"] + (d["표제(원어)"] ? ` (${d["표제(원어)"]})` : "");
+  document.getElementById("d-code").textContent = d["작품 코드"];
+  document.getElementById("d-loc").textContent = d["현위치"] || "-";
+  document.getElementById("d-author").textContent = (d["작가(국문)"] || "-") + (d["작가(원어)"] || d["작가 (원어)"] ? ` (${d["작가(원어)"] || d["작가 (원어)"]})` : "");
+  document.getElementById("d-year").textContent = d["발행연도"] || "-";
+  document.getElementById("d-sojun").textContent = d["소전권서"] || "-";
+  document.getElementById("d-publisher").textContent = d["출판사"] || "-";
+  document.getElementById("d-illus").textContent = d["일러스트(국문)"] || "-";
+  document.getElementById("d-set").textContent = (d["종"] || "-") + "종 / " + (d["권"] || "-") + "권";
+  document.getElementById("d-desc").textContent = d["도서 설명"] || "내용이 없습니다.";
+  document.getElementById("d-bigo").textContent = d["비고"] ? "비고: " + d["비고"] : "";
+  document.getElementById("d-size").textContent = d["가로"] ? `${d["가로"]}x${d["세로"]}cm (두께 ${d["두께 D"] || '0'}cm)` : "-";
+
+  const img = document.getElementById("d-cover");
+  if (d["사진"] && d["사진"].toString().trim().startsWith("http")) {
+    img.src = d["사진"];
+    document.getElementById("d-cover-wrap").style.display = "flex";
+  } else {
+    document.getElementById("d-cover-wrap").style.display = "none";
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById("code-input").addEventListener("keypress", (e) => { 
+  if (e.key === "Enter") searchArtwork(); 
+});
+</script>
+</body>
+</html>
