@@ -6,7 +6,7 @@
 <title>만서각 BOOK ART ARCHIVE</title>
 <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-/* ── 다크 우드톤 디자인 시스템 ── */
+/* ── 디자인 시스템 ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root { --gold: #c9a84c; --cream: #f2ede3; --wood: #1a0f08; --border: rgba(201, 168, 76, 0.3); }
 
@@ -70,43 +70,23 @@ body {
 .content-layout { display: flex; flex-direction: column; gap: 30px; }
 @media (min-width: 768px) { .content-layout { flex-direction: row; } .left-col { width: 280px; } .right-col { flex: 1; } }
 
-/* 사진 박스 */
-#d-cover-wrap { 
-  width: 100%; max-width: 300px; margin: 0 auto 20px; 
-  aspect-ratio: 3/4; border: 1px solid var(--gold); 
-  display: none; overflow: hidden; 
-}
+#d-cover-wrap { width: 100%; max-width: 300px; margin: 0 auto 20px; aspect-ratio: 3/4; border: 1px solid var(--gold); display: none; overflow: hidden; }
 .book-cover img { width: 100%; height: 100%; object-fit: cover; }
 
-/* 핵심 디자인: 라벨 너비 고정 */
-.meta-item { 
-  display: flex; align-items: flex-start; 
-  margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); 
-  padding-bottom: 5px; 
-}
-.meta-key { 
-  width: 90px; flex-shrink: 0; /* 라벨 너비 일정하게 고정 */
-  font-size: 11px; color: var(--gold); 
-  text-transform: uppercase; letter-spacing: 1px; 
-}
+/* 라벨 너비 고정 */
+.meta-item { display: flex; align-items: flex-start; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
+.meta-key { width: 90px; flex-shrink: 0; font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
 .meta-val { font-size: 15px; color: var(--cream); flex: 1; line-height: 1.4; }
 
-.info-grid { 
-  display: grid; grid-template-columns: 1fr; 
-  gap: 0 20px; margin-bottom: 25px; 
-  border-bottom: 1px solid var(--border); padding-bottom: 15px; 
-}
+.info-grid { display: grid; grid-template-columns: 1fr; gap: 0 20px; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
 @media (min-width: 600px) { .info-grid { grid-template-columns: 1fr 1fr; } }
 
 .desc-label { font-size: 11px; color: var(--gold); margin-bottom: 10px; border-left: 2px solid var(--gold); padding-left: 8px; }
 .desc-text { font-size: 14.5px; color: #c8bea8; line-height: 1.8; white-space: pre-wrap; text-align: justify; }
 
-.bottom-bar { 
-  margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); 
-  display: flex; justify-content: space-between; font-size: 12px; color: var(--gold); 
-}
+.bottom-bar { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 12px; color: var(--gold); }
 
-/* 애니메이션 */
+/* 노출 제어용 클래스 */
 .visible { display: block !important; animation: fadeIn 0.4s ease forwards; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -137,7 +117,6 @@ body {
           <div class="meta-item"><div class="meta-key">작품 코드</div><div id="d-code" class="meta-val" style="color:var(--gold); font-weight:600;"></div></div>
           <div class="meta-item"><div class="meta-key">위치</div><div id="d-loc" class="meta-val"></div></div>
         </div>
-        
         <div class="right-col">
           <div class="info-grid">
             <div class="meta-item"><div class="meta-key">작가</div><div id="d-author" class="meta-val"></div></div>
@@ -152,7 +131,6 @@ body {
           <div id="d-desc" class="desc-text"></div>
         </div>
       </div>
-
       <div class="bottom-bar">
         <div id="d-bigo" style="font-style: italic; max-width: 70%;"></div>
         <div style="font-weight: 600;">소전문화재단</div>
@@ -162,7 +140,6 @@ body {
 </div>
 
 <script>
-// 사용자 요청 API URL 반영
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyjCRfbUGUamYi-IcQZpW76Lg6YDa7eNBOaYJyywj81g-N8uzrk2Ct8rkUxJ6dogwcL/exec";
 let currentResults = [];
 
@@ -170,9 +147,16 @@ function searchArtwork() {
   const keyword = document.getElementById("code-input").value.trim();
   if (!keyword) return;
   
+  // ★ 버그 수정 포인트: 새로운 검색 시 모든 화면을 일단 초기화
+  const ds = document.getElementById("display-screen");
+  const ls = document.getElementById("list-screen");
+  
+  ds.classList.remove("visible"); // '보여라' 클래스 제거
+  ls.classList.remove("visible");
+  ds.style.display = "none";      // 물리적으로 숨김
+  ls.style.display = "none";
+  
   document.getElementById("error-msg").textContent = "서고 검색 중...";
-  document.getElementById("display-screen").style.display = "none";
-  document.getElementById("list-screen").style.display = "none";
 
   fetch(`${GAS_URL}?code=${encodeURIComponent(keyword)}`)
     .then(res => res.json())
@@ -192,7 +176,9 @@ function searchArtwork() {
 }
 
 function renderList(data) {
+  const ls = document.getElementById("list-screen");
   const container = document.getElementById("list-container");
+  
   document.getElementById("list-count").textContent = `총 ${data.length}건이 발견되었습니다.`;
   container.innerHTML = data.map((item, idx) => `
     <div class="result-item" onclick="renderPanel(${idx})">
@@ -200,5 +186,49 @@ function renderList(data) {
       <div class="item-sub">작가: ${item["작가(국문)"] || "-"} | 연도: ${item["발행연도"] || "-"} | 코드: ${item["작품 코드"]}</div>
     </div>
   `).join("");
-  document.getElementById("list-screen").style.display = "block";
-  window.scrollTo(0,
+  
+  ls.style.display = "block";
+  ls.classList.add("visible");
+  window.scrollTo(0, 0);
+}
+
+function renderPanel(idx) {
+  const d = currentResults[idx];
+  // 상세 화면 표시 전 리스트 화면 숨기기
+  document.getElementById("list-screen").classList.remove("visible");
+  document.getElementById("list-screen").style.display = "none";
+  
+  const ds = document.getElementById("display-screen");
+  ds.style.display = "block";
+  ds.classList.add("visible");
+
+  document.getElementById("d-main-title").textContent = d["표제(국문)"] + (d["표제(원어)"] ? ` (${d["표제(원어)"]})` : "");
+  document.getElementById("d-code").textContent = d["작품 코드"];
+  document.getElementById("d-loc").textContent = d["현위치"] || "-";
+  document.getElementById("d-author").textContent = (d["작가(국문)"] || "-") + (d["작가(원어)"] || d["작가 (원어)"] ? ` (${d["작가(원어)"] || d["작가 (원어)"]})` : "");
+  document.getElementById("d-year").textContent = d["발행연도"] || "-";
+  document.getElementById("d-sojun").textContent = d["소전권서"] || "-";
+  document.getElementById("d-publisher").textContent = d["출판사"] || "-";
+  document.getElementById("d-illus").textContent = d["일러스트(국문)"] || "-";
+  document.getElementById("d-set").textContent = (d["종"] || "-") + "종 / " + (d["권"] || "-") + "권";
+  document.getElementById("d-desc").textContent = d["도서 설명"] || "내용이 없습니다.";
+  document.getElementById("d-bigo").textContent = d["비고"] ? "비고: " + d["비고"] : "";
+  document.getElementById("d-size").textContent = d["가로"] ? `${d["가로"]}x${d["세로"]}cm (두께 ${d["두께 D"] || '0'}cm)` : "-";
+
+  const img = document.getElementById("d-cover");
+  if (d["사진"] && d["사진"].toString().trim().startsWith("http")) {
+    img.src = d["사진"];
+    document.getElementById("d-cover-wrap").style.display = "flex";
+  } else {
+    document.getElementById("d-cover-wrap").style.display = "none";
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById("code-input").addEventListener("keypress", (e) => { 
+  if (e.key === "Enter") searchArtwork(); 
+});
+</script>
+</body>
+</html>
